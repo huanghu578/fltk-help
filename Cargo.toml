@@ -1,0 +1,18 @@
+[package]
+name = "fltk-help"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+description = "An out-of-the-box FLTK help page UI component that opens HTML files via the system browser, fully compatible with MSIX."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/huanghu578/fltk-help"
+homepage = "https://github.com/huanghu578/fltk-help"
+documentation = "https://docs.rs/fltk-help"
+readme = "README.md"
+keywords = ["fltk", "help", "html", "msix", "gui"]
+categories = ["gui"]
+
+[dependencies]
+fltk = "1.5"
+webbrowser = "1.0"
+dirs = "5.0"

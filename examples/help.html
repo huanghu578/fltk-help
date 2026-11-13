@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fltk-help - Documentation</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --bg: #f8fafc;
+            --text: #334155;
+            --text-light: #64748b;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #94a3b8;
+            --sidebar-hover: #1e293b;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            border-bottom: 1px solid var(--sidebar-hover);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header::before {
+            content: "📚";
+            font-size: 1.5rem;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 16px 0;
+        }
+
+        .sidebar-nav li {
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-nav a {
+            color: inherit;
+            text-decoration: none;
+            display: block;
+            padding: 10px 24px;
+        }
+
+        .sidebar-nav li:hover {
+            color: white;
+            background-color: var(--sidebar-hover);
+        }
+
+        .sidebar-nav li.active {
+            color: white;
+            background-color: var(--sidebar-hover);
+            border-left: 3px solid var(--primary);
+            font-weight: 500;
+        }
+
+        .sidebar-nav li.sub a {
+            padding-left: 48px;
+            font-size: 0.85rem;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 48px 64px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--sidebar-bg);
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+            scroll-margin-top: 40px; /* 滚动时留出顶部边距 */
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            color: var(--sidebar-bg);
+            margin-top: 40px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+            scroll-margin-top: 40px;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: var(--sidebar-bg);
+            scroll-margin-top: 40px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        ul, ol {
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        .badge.blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Code Blocks */
+        pre {
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        code {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: var(--code-text);
+        }
+
+        .inline-code {
+            background: #f1f5f9;
+            color: #db2777;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card h4 {
+            margin-bottom: 12px;
+            color: var(--sidebar-bg);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .feature-item h4 {
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">fltk-help</div>
+        <ul class="sidebar-nav">
+            <li class="active"><a href="#intro">Introduction</a></li>
+            <li><a href="#features">Key Features</a></li>
+            <li><a href="#install">Installation</a></li>
+            <li><a href="#quickstart">Quick Start</a></li>
+            <li class="sub"><a href="#absolute">Absolute Path (Dev)</a></li>
+            <li class="sub"><a href="#appdata">AppData (MSIX)</a></li>
+            <li><a href="#path">Path Resolution</a></li>
+            <li><a href="#nowebview">Why no WebView?</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="content">
+        <h1 id="intro">fltk-help <span class="badge blue">v0.1.0</span></h1>
+        <p>An out-of-the-box FLTK help page UI component. It provides a ready-to-use tab with a button that opens an HTML document via the system's default browser.</p>
+        
+        <div class="feature-grid">
+            <div class="feature-item">
+                <h4>Zero Configuration</h4>
+                <p>Just pass the file name or path. The component automatically resolves the final URL.</p>
+            </div>
+            <div class="feature-item">
+                <h4>MSIX Compatible</h4>
+                <p>Automatically detects MSIX environments and uses the <code>ms-appdata:///</code> protocol.</p>
+            </div>
+            <div class="feature-item">
+                <h4>No WebView Crashes</h4>
+                <p>Completely avoids Z-order bugs, DPI scaling issues, and native window crashes.</p>
+            </div>
+        </div>
+
+        <h2 id="features">Key Features</h2>
+        <ul>
+            <li><strong>Smart Fallback Strategy:</strong> Pass an absolute path for development, or a file name for production. The library figures it out.</li>
+            <li><strong>Perfect Rendering:</strong> The user's default browser handles all CSS, JS, and images flawlessly.</li>
+            <li><strong>100% Stability:</strong> No native window conflicts or embedded WebView crashes.</li>
+        </ul>
+
+        <h2 id="install">Installation</h2>
+        <p>Add this to your <span class="inline-code">Cargo.toml</span>:</p>
+        <pre><code>[dependencies]
+fltk = "1.5"
+fltk-help = "0.1.0"
+webbrowser = "1.0"
+dirs = "5.0"</code></pre>
+
+        <h2 id="quickstart">Quick Start</h2>
+        <p>Simply pass your <span class="inline-code">Tabs</span> container, the tab label, and the file name or path.</p>
+        <pre><code>use fltk::{app, prelude::*, group::{Tabs, Group}, window::Window, frame::Frame};
+use fltk_help::HelpPage;
+
+fn main() {
+    let app = app::App::default();
+    let mut win = Window::new(100, 100, 900, 650, "My App");
+
+    let mut tabs = Tabs::new(10, 10, 880, 630, "");
+
+    // Your normal pages
+    let mut tab1 = Group::new(0, 25, 880, 605, "Settings");
+    tab1.set_label("Settings");
+    tab1.end();
+
+    // The Help Page (One line does it all!)
+    // Pass a relative path, file name, or absolute path.
+    let _help = HelpPage::create_tab(&mut tabs, "Help", "examples/help.html");
+
+    tabs.end();
+    win.end();
+    win.show();
+
+    app.run().unwrap();
+}</code></pre>
+
+        <h3 id="absolute">Absolute Path (For Local Development)</h3>
+        <p>When you want to test your local HTML file without interference from old cached files in AppData, pass an absolute path:</p>
+        <pre><code>let abs_path = format!("{}/examples/help.html", env!("CARGO_MANIFEST_DIR"));
+let _help = HelpPage::create_tab(&mut tabs, "Help", &abs_path);</code></pre>
+
+        <h3 id="appdata">AppData (For Production / MSIX)</h3>
+        <p>In production (especially MSIX packaged apps), pass just the file name. The library will automatically look for it in <code>AppData/Local/MyApp/</code> and use the <code>ms-appdata:///</code> protocol.</p>
+        <pre><code>// Assumes "help.html" has been deployed to AppData by your installer/app-initializer
+let _help = HelpPage::create_tab(&mut tabs, "Help", "help.html");</code></pre>
+
+        <h2 id="path">Path Resolution Logic</h2>
+        <div class="card">
+            <h4>How does the library decide what to open?</h4>
+            <ol>
+                <li><strong>If Absolute Path:</strong> If the file exists, it is used directly.</li>
+                <li><strong>If File Name / Relative Path:</strong> It first checks <code>AppData/Local/MyApp</code>. If found, it is used.</li>
+                <li><strong>Fallback:</strong> If not found in AppData, it falls back to the relative path in your current working directory.</li>
+                <li><strong>MSIX Detection:</strong> If running in an MSIX sandbox (detected via <code>WindowsApps</code> in the exe path), it generates an <code>ms-appdata:///</code> URL instead of <code>file:///</code>.</li>
+            </ol>
+        </div>
+
+        <h2 id="nowebview">Why no WebView?</h2>
+        <p>Embedding native WebViews (like WebView2) inside FLTK windows is notoriously difficult on Windows. It often leads to:</p>
+        <ul>
+            <li>Z-order issues (the WebView covers your buttons and tabs).</li>
+            <li>DPI scaling problems (UI becomes misaligned at 125% / 150% scaling).</li>
+            <li>Fatal crashes when the host window is hidden or resized.</li>
+        </ul>
+        <p>By using the system browser, <strong>fltk-help</strong> completely eliminates these problems while still allowing you to write complex help documentation with external CSS, JS, and images.</p>
+        
+    </main>
+
+</body>
+</html>
