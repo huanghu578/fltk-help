@@ -25,7 +25,7 @@ fn main() {
     // Tab 2: Help
     // 只传入纯文件名。库会优先去 AppData/Local/MyApp/help.html 查找。
     // 如果找不到，它会自动回退去找当前目录下的 help.html。
-    let _help = HelpPage::create_tab(&mut tabs, "Help", "examples/help.html");
+    let _help = HelpPage::create_tab(&mut tabs, "", "examples/help.html");
 
     tabs.end();
     win.end();

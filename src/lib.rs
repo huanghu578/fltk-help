@@ -5,11 +5,7 @@
 //! designed to be robust, zero-configuration, and fully compatible with
 //! Windows Store / MSIX sandboxes.
 
-#![warn(missing_docs)]
-
 use fltk::button::Button;
-use fltk::enums::Align;
-use fltk::frame::Frame;
 use fltk::group::{Group, Tabs};
 use fltk::prelude::*;
 use std::path::Path;
@@ -22,6 +18,88 @@ pub struct HelpPage {
 }
 
 impl HelpPage {
+    /// 根据当前操作系统语言返回 UI 字符串。
+    ///
+    /// 返回 `(tab_label, button_label)`：
+    /// - 中文系统：`("帮助", "打开帮助文档")`
+    /// - 其它系统：`("Help", "Open Help Document")`
+    fn get_local() -> (String, String) {
+        // 优先读取 LC_ALL / LC_MESSAGES / LANG 环境变量
+        let lang = std::env::var("LC_ALL")
+            .or_else(|_| std::env::var("LC_MESSAGES"))
+            .or_else(|_| std::env::var("LANG"))
+            .unwrap_or_default()
+            .to_lowercase();
+
+        // 环境变量未提供时，再按平台查询系统语言
+        let is_chinese = if !lang.is_empty() && lang != "c" && lang != "posix" {
+            lang.starts_with("zh")
+        } else {
+            Self::detect_system_language_is_chinese()
+        };
+
+        if is_chinese {
+            ("帮助".to_string(), "打开帮助文档".to_string())
+        } else {
+            ("Help".to_string(), "Open Help Document".to_string())
+        }
+    }
+
+    /// 按平台检测系统语言是否为中文。
+    #[cfg(target_os = "windows")]
+    fn detect_system_language_is_chinese() -> bool {
+        // 通过 PowerShell 读取系统 UI 语言
+        use std::process::Command;
+        if let Ok(output) = Command::new("powershell")
+            .args(["-NoProfile", "-Command", "(Get-UICulture).Name"])
+            .output()
+        {
+            let name = String::from_utf8_lossy(&output.stdout).to_lowercase();
+            return name.trim().starts_with("zh");
+        }
+        false
+    }
+
+    #[cfg(target_os = "macos")]
+    fn detect_system_language_is_chinese() -> bool {
+        // defaults read -g AppleLanguages 输出形如 ( "zh-Hans", "en" )
+        use std::process::Command;
+        if let Ok(output) = Command::new("defaults")
+            .args(["read", "-g", "AppleLanguages"])
+            .output()
+        {
+            let text = String::from_utf8_lossy(&output.stdout).to_lowercase();
+            // 取列表中第一项
+            return text.contains("zh-hans") || text.contains("zh-hant") || text.contains("\"zh");
+        }
+        false
+    }
+
+    #[cfg(all(unix, not(target_os = "macos")))]
+    fn detect_system_language_is_chinese() -> bool {
+        // 依次尝试 locale 命令与 /etc/default/locale
+        use std::process::Command;
+        if let Ok(output) = Command::new("locale").output() {
+            let text = String::from_utf8_lossy(&output.stdout).to_lowercase();
+            for line in text.lines() {
+                if let Some(value) = line.strip_prefix("lang=") {
+                    if value.contains("zh") {
+                        return true;
+                    }
+                }
+            }
+        }
+        if let Ok(text) = std::fs::read_to_string("/etc/default/locale") {
+            return text.to_lowercase().contains("zh");
+        }
+        false
+    }
+
+    #[cfg(not(any(target_os = "windows", target_os = "macos", unix)))]
+    fn detect_system_language_is_chinese() -> bool {
+        false
+    }
+
     /// Creates a `HelpPage` and automatically adds it as a new tab to a `Tabs` container.
     ///
     /// This method is designed to be **zero-configuration**.
@@ -38,17 +116,21 @@ impl HelpPage {
     /// * `file_name` - The name of the HTML file or its path.
     pub fn create_tab(_tabs: &mut Tabs, tab_label: &str, file_name: &str) -> Self {
         let target_url = Self::resolve_target_url(file_name);
-        
-        let mut group = Group::new(0, 25, 800, 600, tab_label);
-        group.set_label(tab_label);
 
-        let group_w = 800;
+        // 根据系统语言获取本地化字符串
+        let (local_tab_label, local_btn_label) = Self::get_local();
 
-        let mut frame = Frame::new(0, 100, group_w, 50, "Click the button below to view the help document.");
-        frame.set_align(Align::Center);
-        frame.set_label_size(16);
+        // 若调用方传入的 tab_label 为空，则使用本地化标签
+        let final_tab_label: &str = if tab_label.trim().is_empty() {
+            local_tab_label.as_str()
+        } else {
+            tab_label
+        };
 
-        let mut btn = Button::new(300, 180, 200, 50, "Open Help Document");
+        let mut group = Group::new(0, 25, 800, 600, Some(final_tab_label));
+        group.set_label(final_tab_label);
+
+        let mut btn = Button::new(300, 180, 200, 50, Some(local_btn_label.as_str()));
         btn.set_label_size(18);
 
         let url_clone = target_url.clone();
@@ -59,10 +141,8 @@ impl HelpPage {
         });
 
         // 动态居中布局
-        let mut f_clone = frame.clone();
         let mut b_clone = btn.clone();
         group.resize_callback(move |_g, _x, _y, w, h| {
-            f_clone.resize(0, h / 3, w, 50);
             let btn_w = 200;
             b_clone.resize((w - btn_w) / 2, h / 2, btn_w, 50);
         });

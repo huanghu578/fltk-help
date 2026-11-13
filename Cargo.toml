@@ -1,6 +1,6 @@
 [package]
 name = "fltk-help"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.70"
 description = "An out-of-the-box FLTK help page UI component that opens HTML files via the system browser, fully compatible with MSIX."

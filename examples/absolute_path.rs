@@ -27,7 +27,7 @@ fn main() {
     let abs_path = format!("{}/examples/help.html", env!("CARGO_MANIFEST_DIR"));
     println!("Using absolute path: {}", abs_path);
 
-    let _help = HelpPage::create_tab(&mut tabs, "Help", &abs_path);
+    let _help = HelpPage::create_tab(&mut tabs, "", &abs_path);
 
     tabs.end();
     win.end();
